@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/KareBare/Downloads/DAB July 2025/Public Library Management Workshop 6 KM.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2001"/><column_width id="4" width="0"/><expanded_item id="2" parent="0"/><expanded_item id="0" parent="1"/><expanded_item id="2" parent="0"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="patrons" custom_title="0" dock_id="7" table="4,7:mainpatrons"/><dock_state state="000000ff00000000fd00000001000000020000039700000376fc0100000007fb000000160064006f0063006b00420072006f00770073006500310100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500320100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500340100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500350100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500360100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500370100000000000003970000010b00ffffff000003970000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Temp" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="46"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="authors" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort><column index="0" mode="0"/></sort><column_widths><column index="1" value="70"/><column index="2" value="79"/><column index="3" value="88"/><column index="4" value="76"/><column index="5" value="89"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="books" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="61"/><column index="2" value="208"/><column index="3" value="70"/><column index="4" value="66"/><column index="5" value="94"/><column index="6" value="117"/><column index="7" value="101"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="branches" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="74"/><column index="2" value="116"/><column index="3" value="89"/><column index="4" value="64"/><column index="5" value="59"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="genres" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="66"/><column index="2" value="89"/><column index="3" value="255"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="loans" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="56"/><column index="2" value="62"/><column index="3" value="73"/><column index="4" value="75"/><column index="5" value="105"/><column index="6" value="69"/><column index="7" value="85"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="patrons" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="71"/><column index="2" value="79"/><column index="3" value="76"/><column index="4" value="119"/><column index="5" value="89"/><column index="6" value="64"/><column index="7" value="121"/><column index="8" value="74"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL Library Management Workshop 6 KM">--1:Basic Selection: Retrieve the titles and publication years of all books published after 2000, ordered by publication year (newest first).
+SELECT title, publication_year
+FROM books
+WHERE publication_year&gt;= '2000'
+ORDER BY publication_year DESC;
+
+--2 Filtering: Find all books with more than 5 copies owned in the fiction genre (genre_id = 1).
+
+SELECT *
+FROM books
+WHERE genre_id = 1
+		AND copies_owned &gt; 5;
+	
+--3: Pattern Matching: List all books whose titles contain the word &quot;History&quot;.
+
+SELECT *
+FROM books
+WHERE title like '%History %';
+
+--4: JOIN Operations: Display loan information (loan_id, checkout_date, due_date) along with patron details (first_name, last_name, email) for all loans made in January 2023.
+
+SELECT
+	loans.loan_id,
+	loans.checkout_date,
+	loans.due_date,
+	patrons.first_name,
+	patrons.last_name,
+	patrons.email
+FROM loans
+JOIN patrons ON loans.patron_id
+WHERE loans.checkout_date &gt;= '2023-01-01' AND loans.checkout_date &lt;= '2023-01-31';
+
+--5: Multi-table JOIN: Show book details (title, author's full name, genre_name) for each loan, along with the checkout_date and due_date.
+
+SELECT
+books.title,
+		CONCAT(authors.first_name, ' ', authors.last_name) AS author_full_name,
+		genres.genre_name,
+		loans.checkout_date,
+		loans.due_date
+FROM loans
+JOIN books on loans.book_id
+JOIN authors on books.author_id
+JOIN genres on books.genre_id;
+
+--6: Self JOIN: Find pairs of patrons who live in the same city. Show both patrons' names and their city.
+--Note to self : Commas are important
+
+SELECT
+	p1.patron_id AS patron_id_1,
+	CONCAT (p1.first_name, ' ', p1.last_name) AS  full_name_1,
+	p2.patron_id AS patron_id_2,
+	CONCAT (p2.first_name, ' ', p2.last_name) AS  full_name_2,
+	p1.city
+FROM patrons p1
+JOIN patrons p2
+		ON p1.city = p2.city
+		AND p1.patron_id &lt; p2.patron_id
+ORDER BY p1.city, patron_id_1, patron_id_2;
+
+--7: Multi-table JOIN with filtering: Find all fiction books (genre_id = 1) that have been borrowed, along with the patron name and the branch where they were borrowed from
+
+SELECT
+	books.title AS book_title,
+	CONCAT (patrons.first_name, ' ' ,patrons.last_name) AS patron_name,
+	branches.branch_name
+FROM loans
+JOIN books ON loans.book_id = books.book_id
+JOIN patrons ON loans.patron_id = patrons.patron_id
+JOIN branches ON loans.branch_id = branches.branch_id
+WHERE books.genre_id = 1;
+
+--8: COUNT aggregation: Count the number of books in each genre category.
+SELECT
+	genre_id,
+	COUNT (*) AS book_count
+FROM books
+GROUP BY genre_id;
+
+--9: Multiple aggregations: Calculate the average, minimum, and maximum loan duration (days between checkout and return) for each library branch. Include only returned books.
+
+SELECT
+  branch_id,
+  ROUND (AVG(julianday(return_date) - julianday(checkout_date)) -2) AS avg_loan_days,
+  MIN(julianday(return_date) - julianday(checkout_date)) AS min_loans_days,
+  MAX(julianday(return_date) - julianday(checkout_date)) AS max_loan_days
+FROM loans
+WHERE return_date IS NOT NULL
+	GROUP BY 
+	branch_id;
+
+--10: Conditional aggregation: Find patrons with overdue books (due_date &lt; CURRENT_DATE and return_date = ' '), along with the count of overdue books they have.
+
+
+SELECT 
+	loans.patron_id,
+	COUNT (*) AS overdue_count
+FROM loans 
+WHERE
+	(
+		loans.return_date IS NULL
+		or TRIM (loans.return_date) = ''
+		)
+		AND loans.due_date &lt; '2025-10-06' -- replace with current date for future use is needed
+		GROUP BY loans.patron_id;
+		
+--*11: Time-based analysis: Analyze monthly borrowing trends. Show the year, month, number of loans, and number of unique patrons for each month.
+
+
+SELECT
+  branch_id,
+  ROUND (AVG(julianday(return_date) - julianday(checkout_date)) -2) AS avg_loan_days,
+  MIN(julianday(return_date) - julianday(checkout_date)) AS min_loans_days,
+  MAX(julianday(return_date) - julianday(checkout_date)) AS max_loan_days
+FROM loans
+WHERE return_date IS NOT NULL
+	GROUP BY 
+	branch_id;
+	
+	--
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
