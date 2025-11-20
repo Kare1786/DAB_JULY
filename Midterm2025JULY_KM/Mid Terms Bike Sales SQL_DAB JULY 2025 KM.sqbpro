@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Mid Terms Bike Sales SQL_DAB JULY 2025 KM.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2316"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="0" parent="0"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Bike" custom_title="0" dock_id="7" table="4,4:mainBike"/><dock_state state="000000ff00000000fd0000000100000002000005d500000374fc0100000007fb000000160064006f0063006b00420072006f00770073006500310100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500320100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500340100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500350100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500360100000000000005360000000000000000fb000000160064006f0063006b00420072006f00770073006500370100000000000005d50000010d00ffffff000005d50000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Bike" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort><column index="13" mode="1"/></sort><column_widths><column index="2" value="69"/><column index="3" value="40"/><column index="4" value="59"/><column index="5" value="40"/><column index="6" value="104"/><column index="7" value="115"/><column index="8" value="126"/><column index="9" value="89"/><column index="10" value="111"/><column index="11" value="127"/><column index="13" value="143"/><column index="14" value="108"/><column index="15" value="73"/><column index="16" value="77"/><column index="17" value="61"/><column index="18" value="61"/><column index="19" value="67"/><column index="20" value="77"/><column index="21" value="94"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">-- check count
+SELECT COUNT(*) FROM Bike;
+
+---noticed 20 rows of null in table from broswe data view
+PRAGMA table_info(Bike);
+
+ --delete null rows
+DELETE FROM Bike
+WHERE
+    &quot;Sales_Order #&quot; IS NULL AND
+    Date IS NULL AND
+    Day IS NULL AND
+    Month IS NULL AND
+    Year IS NULL AND
+    Customer_Age IS NULL AND
+    Age_Group IS NULL AND
+    Customer_Gender IS NULL AND
+    Country IS NULL AND
+    State IS NULL AND
+    Product_Category IS NULL AND
+    Sub_Category IS NULL AND
+    Product_Description IS NULL AND
+    Order_Quantity IS NULL AND
+    Unit_Cost IS NULL AND
+    Unit_Price IS NULL AND
+    Profit IS NULL AND
+    Cost IS NULL AND
+    Revenue IS NULL AND
+    &quot;True Profit&quot; IS NULL AND
+    &quot;Cost Margins&quot; IS NULL;
+	
+--- Check if all null is removed 
+PRAGMA table_info(Bike);
+-- results null removed
+
+/*-amout of orders per country
+SELECT Country, COUNT(*) AS TotalOrders
+FROM Bike
+GROUP BY Country
+ORDER BY TotalOrders DESC;
+*/
+
+--- check how SQL is reading the data since it is return 0.00 for columns marked as numeric 
+SELECT Revenue, typeof(Revenue)
+FROM Bike
+LIMIT 20;
+--- shows type as text and I notice the $ sign that was added when cleaning in excel
+
+-- fix formating aka remove $ since 
+UPDATE Bike
+SET 
+    Unit_Cost     = REPLACE(REPLACE(Unit_Cost, '$', ''), ',', '') * 1.0,
+    Unit_Price    = REPLACE(REPLACE(Unit_Price, '$', ''), ',', '') * 1.0,
+    Profit        = REPLACE(REPLACE(Profit, '$', ''), ',', '') * 1.0,
+    Cost          = REPLACE(REPLACE(Cost, '$', ''), ',', '') * 1.0,
+    Revenue       = REPLACE(REPLACE(Revenue, '$', ''), ',', '') * 1.0,
+    &quot;True Profit&quot; = REPLACE(REPLACE(&quot;True Profit&quot;, '$', ''), ',', '') * 1.0,
+    &quot;Cost Margins&quot; = REPLACE(REPLACE(&quot;Cost Margins&quot;, '$', ''), ',', '') * 1.0;
+----
+--- check  if correction worked  is SQL  now reading the data  as number and not text 
+SELECT Revenue, typeof(Revenue)
+FROM Bike
+LIMIT 20;
+
+--amout of orders per country- SQL Output 1
+SELECT Country, COUNT(*) AS TotalOrders
+FROM Bike
+GROUP BY Country
+ORDER BY TotalOrders DESC;
+--  USA has the highest orders amount followed by AUS
+
+---Average sales by Product_Description- SQL output 2
+SELECT 
+    Product_Description,
+    round (AVG(Revenue) ,2) AS Avg_Revenue
+FROM Bike
+GROUP BY Product_Description
+ORDER BY Avg_Revenue DESC;
+--Mountain-100 Black, 48 produce the highest Revenue
+
+-- get min and max of unit price- SQL output 2
+SELECT 
+    MIN(Unit_Price) AS MinPrice,
+    MAX(Unit_Price) AS MaxPrice
+FROM Bike;
+-- Min  540.0 Max 3400
+
+-- get min and max of Cost Margins SQL output 2
+SELECT 
+    MIN(&quot;Cost Margins&quot;) AS MinPrice,
+    MAX(&quot;Cost Margins&quot;) AS MaxPrice
+FROM Bike;
+-- Min  -1684 Max 4590
+
+-- Average true profits by Product Description- SQL output 2
+SELECT 
+    Product_Description,
+    round (AVG(&quot;True Profit&quot;),2)  AS Avg_True_Profit
+FROM Bike
+GROUP BY Product_Description
+ORDER BY Avg_True_Profit DESC;
+------
+
+-- Business Question 1: Which bike was most profitable -- SQL Output 3
+SELECT 
+    Product_Description,
+    ROUND(SUM(Revenue), 2) AS Total_Revenue,
+    ROUND(SUM(Cost), 2) AS Total_Cost,
+    ROUND(SUM(&quot;True Profit&quot;), 2) AS Total_True_Profit,
+
+-- calculate Profit % = (True Profit / Cost) * 100
+    ROUND( 
+        (SUM(&quot;True Profit&quot;) * 1.0 / SUM(Cost)) * 100,
+        2
+    ) AS Profit_Percentage
+FROM Bike
+GROUP BY Product_Description
+ORDER BY Profit_Percentage DESC;
+-- Answer Mountain-200 Black, 46
+
+-- Business question 2 who is the target audience by profit -- SQL Output 4
+--Find age group and  gender target market for most profiable  3 Bikes
+WITH ProfitSummary AS (
+    SELECT 
+        Product_Description,
+        ROUND(SUM(Revenue), 2) AS Total_Revenue,
+        ROUND(SUM(Cost), 2) AS Total_Cost,
+        ROUND(SUM(&quot;True Profit&quot;), 2) AS Total_True_Profit,
+        ROUND( 
+            (SUM(&quot;True Profit&quot;) * 1.0 / SUM(Cost)) * 100,
+            2
+        ) AS Profit_Percentage
+    FROM Bike
+    GROUP BY Product_Description
+),
+
+AgeGroupCounts AS (
+    SELECT 
+        Product_Description,
+        Age_Group,
+        COUNT(*) AS AgeGroup_Count,
+        ROW_NUMBER() OVER (
+            PARTITION BY Product_Description ORDER BY COUNT(*) DESC
+        ) AS rn
+    FROM Bike
+    GROUP BY Product_Description, Age_Group
+),
+
+GenderCounts AS (
+    SELECT 
+        Product_Description,
+        Customer_Gender,
+        COUNT(*) AS Gender_Count,
+        ROW_NUMBER() OVER (
+            PARTITION BY Product_Description ORDER BY COUNT(*) DESC
+        ) AS rn
+    FROM Bike
+    GROUP BY Product_Description, Customer_Gender
+)
+
+SELECT 
+    p.Product_Description,
+    p.Total_Revenue,
+    p.Total_Cost,
+    p.Total_True_Profit,
+    p.Profit_Percentage,
+    a.Age_Group AS Top_Age_Group,
+    g.Customer_Gender AS Top_Gender
+FROM ProfitSummary p
+LEFT JOIN AgeGroupCounts a 
+    ON p.Product_Description = a.Product_Description 
+   AND a.rn = 1
+LEFT JOIN GenderCounts g 
+    ON p.Product_Description = g.Product_Description 
+   AND g.rn = 1
+ORDER BY p.Profit_Percentage DESC;
+-- Top  2 , 46, gender female, age group 35-64,  3rd Youth under 25; female
+
+
+-- Business question 3 where  (location) is the target audience by profit -- SQL Output 5
+--Step 1 Rank all countries 
+WITH CountryProfit AS (
+    SELECT 
+        Country,
+        SUM(&quot;True Profit&quot;) AS Total_True_Profit,
+        SUM(Cost) AS Total_Cost,
+        ROUND( (SUM(&quot;True Profit&quot;) * 1.0 / SUM(Cost)) * 100, 2 ) AS Profit_Percentage
+    FROM Bike
+    GROUP BY Country
+),
+
+-- Step 2 find  state  profit for each country
+StateProfit AS (
+    SELECT 
+        Country,
+        State,
+        SUM(&quot;True Profit&quot;) AS Total_True_Profit,
+        SUM(Cost) AS Total_Cost,
+        ROUND( (SUM(&quot;True Profit&quot;) * 1.0 / SUM(Cost)) * 100, 2 ) AS Profit_Percentage
+    FROM Bike
+    GROUP BY Country, State
+)
+
+-- Step 3  displays  result: ranked countries + states by true profit and % of profit aka money per dollar 82%  = made 0.82 cents for every dollar spent on cost
+
+SELECT 
+    cp.Country,
+    cp.Profit_Percentage AS Country_Profit_Percentage,
+    cp.Total_True_Profit AS Country_True_Profit,
+    sp.State,
+    sp.Profit_Percentage AS State_Profit_Percentage,
+    sp.Total_True_Profit AS State_True_Profit
+FROM CountryProfit cp
+LEFT JOIN StateProfit sp 
+    ON cp.Country = sp.Country
+ORDER BY 
+    cp.Profit_Percentage DESC,
+    cp.Total_True_Profit DESC,
+    sp.Profit_Percentage DESC;
+	
+---------
+
+SELECT 
+    Product_Description,
+    ROUND(SUM(Revenue), 2) AS Total_Revenue,
+    ROUND(SUM(Cost), 2) AS Total_Cost,
+    ROUND(SUM(&quot;True Profit&quot;), 2) AS Total_True_Profit,
+
+-- calculate Profit % = (True Profit / Cost) * 100
+    ROUND( 
+        (SUM(&quot;True Profit&quot;) * 1.0 / SUM(Cost)) * 100,
+        2
+    ) AS Profit_Percentage
+FROM Bike
+GROUP BY Product_Description
+ORDER BY Profit_Percentage DESC;</sql><current_tab id="0"/></tab_sql></sqlb_project>
